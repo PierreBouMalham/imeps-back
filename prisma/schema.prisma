@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id        String  @id @default(cuid())
+  firstName String?
+  lastName  String?
+
+  email    String? @unique
+  password String?
+}
+
+model student {
+  id         String   @id @default(cuid())
+  firstName  String?
+  middleName String?
+  lastName   String?
+  branch     String?
+  email      String?
+  phone      String?
+  year       String?
+  grades     String?
+  ranking    Float?
+  average    Float?
+  abroad     Boolean?
+
+  department   department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+
+  applications application[]
+}
+
+model department {
+  id   String  @id @default(cuid())
+  name String?
+
+  students     student[]
+  conventions  convention[]
+  universities university[]
+
+  diplomas diploma[]
+}
+
+model country {
+  id   String  @id @default(cuid())
+  name String?
+
+  universities university[]
+}
+
+model convention {
+  id   String  @id @default(cuid())
+  name String?
+  year String?
+  url  String?
+
+  department   department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+  university   university? @relation(fields: [universityId], references: [id])
+  universityId String?
+}
+
+model university {
+  id   String  @id @default(cuid())
+  name String?
+
+  diplomas    diploma[]
+  departments department[]
+  conventions convention[]
+  parcours    parcours[]
+
+  country   country? @relation(fields: [countryId], references: [id])
+  countryId String?
+}
+
+model diploma {
+  id   String  @id @default(cuid())
+  name String?
+
+  department   department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+
+  university   university? @relation(fields: [universityId], references: [id])
+  universityId String?
+
+  scholarships scholarship[]
+  applications application[]
+
+  surDossiers          String?
+  type                 String?
+  year                 String?
+  languageLevel        String?
+  costs                String?
+  interview            Boolean?
+  oralExam             Boolean?
+  writtenExam          Boolean?
+  applicationStartDate DateTime?
+  applicationEndDate   DateTime?
+  resultsDate          DateTime?
+  procedure            String?
+}
+
+model parcours {
+  id          String  @id @default(cuid())
+  description String? @db.LongText()
+  type        String?
+
+  university   university? @relation(fields: [universityId], references: [id])
+  universityId String?
+}
+
+model scholarship {
+  id          String  @id @default(cuid())
+  name        String?
+  description String?
+
+  diplomas     diploma[]
+  applications application[]
+}
+
+model application {
+  id String @id @default(cuid())
+
+  student   student? @relation(fields: [studentId], references: [id])
+  studentId String?
+
+  diploma   diploma? @relation(fields: [diplomaId], references: [id])
+  diplomaId String?
+
+  createdAt         DateTime? @default(now())
+  status            String?
+  comment           String?
+  authorized        Boolean?
+  gottenScholarship Boolean?
+
+  scholarship   scholarship? @relation(fields: [scholarshipId], references: [id])
+  scholarshipId String?
+}
